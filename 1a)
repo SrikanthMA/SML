@@ -1,0 +1,31 @@
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+import matplotlib.pyplot as plt
+
+data = {
+    "shear": [2160.70, 1680.15, 2318.00, 2063.30, 2209.50, 1710.30,
+             1786.70, 2577.00, 2359.90, 2258.70, 2167.20, 2401.55, 1781.80,
+             2338.75, 1767.30, 2055.50, 2416.40, 2202.50, 2656.20, 1755.70 ],
+    "age": [15.50, 23.75, 8.00, 17.00, 5.50, 19.00, 24.00, 2.50, 7.50,
+           11.00, 13.00, 3.75, 25.00, 9.75, 22.00, 18.00, 6.00, 12.50, 2.00, 21.50]
+}
+print(data.items())
+df = pd.DataFrame(data)
+df.head()
+Y = data['shear']
+X = data['age']
+X = sm.add_constant(X)
+linear_regression = sm.OLS(Y, X)
+fitted_model = linear_regression.fit()
+fitted_model.summary()
+intercept = fitted_model.params[0]
+coefficient = fitted_model.params[1]
+print(intercept)
+print(coefficient)
+
+Output:-
+dict_items([('shear', [2160.7, 1680.15, 2318.0, 2063.3, 2209.5, 1710.3, 1786.7, 2577.0, 2359.9, 2258.7, 2167.2, 2401.55, 1781.8, 2338.75, 1767.3, 2055.5, 2416.4, 2202.5, 2656.2, 1755.7]), ('age', [15.5, 23.75, 8.0, 17.0, 5.5, 19.0, 24.0, 2.5, 7.5, 11.0, 13.0, 3.75, 25.0, 9.75, 22.0, 18.0, 6.0, 12.5, 2.0, 21.5])])
+2629.822359001296
+-37.15359094490522
