@@ -1,0 +1,68 @@
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+import matplotlib.pyplot as plt
+
+data = {
+    "shear": [2160.70, 1680.15, 2318.00, 2063.30, 2209.50, 1710.30,
+              1786.70, 2577.00, 2359.90, 2258.70, 2167.20, 2401.55, 1781.80,
+              2338.75, 1767.30, 2055.50, 2416.40, 2202.50, 2656.20, 1755.70],
+    "age": [15.50, 23.75, 8.00, 17.00, 5.50, 19.00, 24.00, 2.50, 7.50,
+            11.00, 13.00, 3.75, 25.00, 9.75, 22.00, 18.00, 6.00, 12.50, 2.00, 21.50]
+}
+
+df = pd.DataFrame(data)
+y = df['shear'].values
+X = df['age'].values
+X = sm.add_constant(X)  # Add intercept term
+
+def stochastic_gradient_descent(X, y, learning_rate=0.000001, n_iterations=10000):
+    m = len(y)
+    theta = np.array([3000, -0.1])  # initial guess
+    for iteration in range(n_iterations):
+        random_index = np.random.randint(m)
+        xi = X[random_index:random_index+1]  # shape (1, 2)
+        yi = y[random_index:random_index+1]  # shape (1,)
+        error = xi.dot(theta) - yi
+        gradients = 2 * xi.T * error  # shape (2, 1)
+        theta = theta - learning_rate * gradients.flatten()
+    return theta
+
+theta_sgd = stochastic_gradient_descent(X, y)
+print(f"Stochastic Gradient Descent:\nIntercept: {theta_sgd[0]:.2f}, Slope: {theta_sgd[1]:.4f}")
+
+# Least Squares solution (using numpy)
+theta_ls = np.linalg.inv(X.T.dot(X)).dot(X.T).dot(y)
+print(f"Least Squares:\nIntercept: {theta_ls[0]:.2f}, Slope: {theta_ls[1]:.4f}")
+
+# For demonstration, simple Gradient Descent (batch)
+def gradient_descent(X, y, learning_rate=0.000001, n_iterations=10000):
+    m = len(y)
+    theta = np.array([3000, -0.1])
+    for iteration in range(n_iterations):
+        predictions = X.dot(theta)
+        errors = predictions - y
+        gradients = (2/m) * X.T.dot(errors)
+        theta = theta - learning_rate * gradients
+    return theta
+
+theta_gd = gradient_descent(X, y)
+print(f"Batch Gradient Descent:\nIntercept: {theta_gd[0]:.2f}, Slope: {theta_gd[1]:.4f}")
+
+# Plot
+plt.scatter(X[:, 1], y, color='blue', label='Data points')
+
+x_values = np.linspace(0, 26, 100)
+y_ls = theta_ls[0] + theta_ls[1] * x_values
+y_gd = theta_gd[0] + theta_gd[1] * x_values
+y_sgd = theta_sgd[0] + theta_sgd[1] * x_values
+
+plt.plot(x_values, y_ls, color='red', label='Least Squares')
+plt.plot(x_values, y_gd, color='green', linestyle='--', label='Batch Gradient Descent')
+plt.plot(x_values, y_sgd, color='orange', linestyle=':', label='Stochastic Gradient Descent')
+
+plt.xlabel('Age')
+plt.ylabel('Shear')
+plt.title('Linear Regression: Different Estimation Methods')
+plt.legend()
+plt.show()
